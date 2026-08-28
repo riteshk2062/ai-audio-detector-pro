@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Audio Detector Pro - Google TensorFlow</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding: 30px; margin: 0; }
+        .container { background: #1e293b; padding: 40px; border-radius: 16px; max-width: 650px; margin: auto; box-shadow: 0px 10px 30px rgba(0,0,0,0.5); }
+        
+        h2 { color: #38bdf8; margin-bottom: 5px; font-size: 28px; }
+        .subtitle { color: #94a3b8; font-size: 15px; margin-bottom: 25px; }
+        
+        input[type="file"] { margin: 20px 0; padding: 15px; background: #334155; border: 2px dashed #475569; width: 85%; border-radius: 8px; color: #cbd5e1; cursor: pointer; }
+        button { background: #0ea5e9; color: white; border: none; padding: 14px 35px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #0284c7; transform: scale(1.02); }
+        
+        #visualizer-box { margin: 30px auto; width: 100%; background: #000; border-radius: 12px; display: none; overflow: hidden; border: 2px solid #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+        canvas { width: 100%; height: 160px; display: block; }
+        audio { width: 100%; background: #f1f5f9; border-radius: 0 0 12px 12px; }
+
+        #result { margin-top: 30px; padding: 25px; border-radius: 12px; background: #1e293b; display: none; text-align: left; border: 2px solid #22c55e; }
+        .score-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #22c55e; border-bottom: 1px solid #475569; padding-bottom: 5px; }
+        .score { font-size: 22px; font-weight: bold; }
+        
+        .info-box { margin-top: 35px; background: #334155; padding: 25px; border-radius: 12px; text-align: left; border-left: 6px solid #e11d48; }
+        .info-title { font-size: 18px; font-weight: bold; color: #f43f5e; margin-bottom: 12px; }
+        .info-text { font-size: 14px; color: #cbd5e1; line-height: 1.6; }
+        .info-text ul { padding-left: 20px; margin: 8px 0; }
+        .info-text li { margin-bottom: 10px; }
+        .highlight-blue { color: #38bdf8; font-weight: bold; }
+        .highlight-green { color: #22c55e; font-weight: bold; }
+        .highlight-red { color: #f43f5e; font-weight: bold; }
+        .footer-badge { text-align: center; margin-top: 15px; font-size: 12px; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>AI Audio Detector Pro</h2>
+    <div class="subtitle">यूट्यूब और गूगल सर्वर की तरह गहराई से ध्वनि तरंगों की जांच</div>
+    
+    <form id="uploadForm">
+        <input type="file" id="audioFile" accept="audio/*" required><br>
+        <button type="submit">गाना प्ले और स्कैन करें</button>
+    </form>
+
+    <div id="visualizer-box">
+        <canvas id="canvas"></canvas>
+        <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <div id="result">
+        <div class="score-title">🎯 स्कैन का अंतिम परिणाम (Final Result):</div>
+        <p>एआई (AI) पैटर्न मात्रा: <span id="aiScore" style="color:#ef4444;" class="score">0%</span></p>
+        <p>असली इंसानी (Human) आवाज: <span id="humanScore" style="color:#22c55e;" class="score">0%</span></p>
+        <p>सुरक्षा स्टेटस: <span id="statusText" style="font-weight:bold; color:#f8fafc;">-</span></p>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title">🔍 YouTube & Google का AI गाने को कैसे पकड़ता है?</div>
+        <div class="info-text">
+            ऊपर चल रहे लाइव ग्राफ़ के पीछे का विज्ञान इस प्रकार काम करता है:
+            <ul>
+                <li><span class="highlight-blue">नीला रंग (Dark Blue):</span> यह ग्राफ़ में <strong>लो (Low) यानी धुंध और सन्नाटे (Silence)</strong> को दिखाता है। जहाँ म्यूज़िक रुकता है या आवाज़ धीमी होती है, वहाँ नीला रंग बन जाता है।</li>
+                <li><span class="highlight-green">इंसानी आवाज़ का उतार-चढ़ाव:</span> जब कोई असली आदमी गाना गाता है, तो उसकी ध्वनि तरंगें (Frequency) ऊपर-नीचे लहराती हैं। इंसानी आवाज़ में <strong>प्राकृतिक उतार-चढ़ाव की भरपूर मात्रा</strong> होती है, जिसे यूट्यूब का AI सेफ़ मानता है।</li>
+                <li><span class="highlight-red">AI आवाज़ की सीधी लाइन:</span> जब AI गाना गाता है, तो उसमें प्राकृतिक उतार-चढ़ाव की कमी होती है। AI की आवाज़ एकदम <strong>सीधे सोर्स (Flat Line)</strong> में निकल जाती है। यूट्यूब का एडवांस AI इसी अप्राकृतिक सीधे पैटर्न को तुरंत पकड़कर फ्लैग कर देता है।</li>
+            </ul>
+        </div>
+        <div class="footer-badge">POWERED BY GOOGLE TENSORFLOW & YAMNET MODEL</div>
+    </div>
+</div>
+
+<script>
+    let audioCtx;
+    let analyser;
+    let source;
+    const canvas = document.getElementById('canvas');
+    const canvasCtx = canvas.getContext('2d');
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('audioFile');
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const fileURL = URL.createObjectURL(file);
+        audioPlayer.src = fileURL;
+        document.getElementById('visualizer-box').style.display = "block";
+        document.getElementById('result').style.display = "none";
+        audioPlayer.play();
+
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(audioPlayer);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+        }
+
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function drawLiveGraph() {
+            requestAnimationFrame(drawLiveGraph);
+            analyser.getByteFrequencyData(dataArray);
+
+            canvasCtx.fillStyle = '#000000';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 1.5;
+                canvasCtx.fillStyle = `rgb(${barHeight + 50}, 56, 249)`;
+                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        }
+        drawLiveGraph();
+
+        const formData = new FormData();
+        formData.append('audio_file', file);
+        
+        const response = await fetch('/detect', { method: 'POST', body: formData });
+        const data = await response.json();
+        
+        if(data.error) {
+            alert(data.error);
+        } else {
+            document.getElementById('result').style.display = "block";
+            document.getElementById('aiScore').innerText = data.ai;
+            document.getElementById('humanScore').innerText = data.human;
+            document.getElementById('statusText').innerText = data.status;
+        }
+    };
+</script>
+</body>
+</html>
